@@ -1,13 +1,9 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import { tv } from "tailwind-variants";
+import { twMerge } from "tailwind-merge";
 
-const codeEditorWrapper = tv({
-	base: "border border-border-primary",
-});
-
-type CodeEditorProps = Omit<ComponentProps<"div">, "onChange"> & {
+type CodeEditorProps = ComponentProps<"div"> & {
 	value: string;
 	onChange: (value: string) => void;
 };
@@ -18,7 +14,7 @@ function CodeEditor({ value, onChange, className, ...props }: CodeEditorProps) {
 	const displayLines = Math.max(lines, minLines);
 
 	return (
-		<div className={codeEditorWrapper({ className })}>
+		<div className={twMerge("border border-border-primary", className)}>
 			{/* Header */}
 			<div className="flex items-center gap-2 h-10 px-4 border-b border-border-primary bg-bg-surface">
 				<span className="size-2.5 rounded-full bg-accent-red" />

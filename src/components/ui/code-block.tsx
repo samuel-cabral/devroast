@@ -1,105 +1,64 @@
-import type { ComponentProps } from "react";
+import type { BundledLanguage } from "shiki";
 import { codeToHtml } from "shiki";
-import { tv } from "tailwind-variants";
+import { twMerge } from "tailwind-merge";
 
-// --- Root ---
-
-const codeBlockRoot = tv({
-	base: "overflow-hidden rounded-lg border border-border-primary bg-bg-input",
-});
-
-type CodeBlockRootProps = ComponentProps<"div">;
-
-function CodeBlockRoot({ className, ...props }: CodeBlockRootProps) {
-	return <div className={codeBlockRoot({ className })} {...props} />;
-}
-
-// --- Header ---
-
-type CodeBlockHeaderProps = ComponentProps<"header">;
-
-function CodeBlockHeader({
-	className,
-	children,
-	...props
-}: CodeBlockHeaderProps) {
-	return (
-		<header
-			className="flex h-10 items-center border-b border-border-primary px-md"
-			{...props}
-		>
-			<div className="flex items-center gap-3">
-				<span className="size-2.5 rounded-full bg-accent-red" />
-				<span className="size-2.5 rounded-full bg-accent-amber" />
-				<span className="size-2.5 rounded-full bg-accent-green" />
-			</div>
-			{children && (
-				<>
-					<div className="flex-1" />
-					<span className="text-xs text-text-tertiary font-mono">
-						{children}
-					</span>
-				</>
-			)}
-		</header>
-	);
-}
-
-// --- Content ---
-
-type CodeBlockContentProps = {
+type CodeBlockProps = {
 	code: string;
-	language: string;
-	showLineNumbers?: boolean;
+	lang: BundledLanguage;
+	filename?: string;
+	className?: string;
 };
 
-async function CodeBlockContent({
-	code,
-	language,
-	showLineNumbers = false,
-}: CodeBlockContentProps) {
+async function CodeBlock({ code, lang, filename, className }: CodeBlockProps) {
 	const html = await codeToHtml(code, {
-		lang: language,
+		lang,
 		theme: "vesper",
 	});
 
-	const lineCount = code.split("\n").length;
+	const lines = code.split("\n");
 
-	if (showLineNumbers) {
-		return (
-			<div className="flex">
-				<div className="flex flex-col gap-1.5 bg-bg-surface border-r border-border-primary px-2.5 py-3 text-right">
-					{Array.from({ length: lineCount }, (_, i) => (
+	return (
+		<div
+			className={twMerge(
+				"border border-border-primary overflow-hidden",
+				className,
+			)}
+		>
+			{/* Header */}
+			<div className="flex items-center gap-3 h-10 px-4 border-b border-border-primary">
+				<span className="size-2.5 rounded-full bg-accent-red" />
+				<span className="size-2.5 rounded-full bg-accent-amber" />
+				<span className="size-2.5 rounded-full bg-accent-green" />
+				<span className="flex-1" />
+				{filename && (
+					<span className="font-mono text-xs text-text-tertiary">
+						{filename}
+					</span>
+				)}
+			</div>
+
+			{/* Body */}
+			<div className="flex bg-bg-input">
+				{/* Line numbers */}
+				<div className="flex flex-col items-end gap-1.5 py-3 px-2.5 w-10 border-r border-border-primary bg-bg-surface select-none">
+					{lines.map((_, i) => (
 						<span
-							key={`ln-${i + 1}`}
-							className="text-[13px] leading-tight text-text-tertiary font-mono"
+							key={`ln-${i.toString()}`}
+							className="font-mono text-[13px] leading-tight text-text-tertiary"
 						>
 							{i + 1}
 						</span>
 					))}
 				</div>
+
+				{/* Code */}
 				<div
-					className="flex-1 overflow-x-auto p-3 text-[13px] [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:font-mono [&_.line]:leading-tight [&_.line]:block [&_.line+.line]:mt-1.5"
+					className="flex-1 p-3 overflow-x-auto font-mono text-[13px] leading-tight [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent [&_.line]:leading-[1.65]"
 					dangerouslySetInnerHTML={{ __html: html }}
 				/>
 			</div>
-		);
-	}
-
-	return (
-		<div
-			className="overflow-x-auto p-md text-sm [&_pre]:!bg-transparent [&_code]:font-mono"
-			dangerouslySetInnerHTML={{ __html: html }}
-		/>
+		</div>
 	);
 }
 
-export {
-	CodeBlockContent,
-	type CodeBlockContentProps,
-	CodeBlockHeader,
-	type CodeBlockHeaderProps,
-	CodeBlockRoot,
-	type CodeBlockRootProps,
-	codeBlockRoot,
-};
+export { CodeBlock, type CodeBlockProps };
