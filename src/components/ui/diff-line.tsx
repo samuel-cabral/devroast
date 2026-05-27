@@ -1,29 +1,13 @@
-import { type ComponentProps, forwardRef } from "react";
+import type { ComponentProps } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const diffLine = tv({
-	slots: {
-		base: "flex items-center gap-sm px-md py-2 font-mono text-[13px]",
-		prefix: "select-none",
-		code: "",
-	},
+	base: "flex font-mono text-xs leading-tight",
 	variants: {
 		type: {
-			added: {
-				base: "bg-[#0A1A0F]",
-				prefix: "text-accent-green",
-				code: "text-text-primary",
-			},
-			removed: {
-				base: "bg-[#1A0A0A]",
-				prefix: "text-accent-red",
-				code: "text-text-secondary",
-			},
-			context: {
-				base: "",
-				prefix: "text-text-tertiary",
-				code: "text-text-secondary",
-			},
+			added: "text-accent-green",
+			removed: "text-accent-red",
+			context: "text-text-secondary",
 		},
 	},
 	defaultVariants: {
@@ -31,28 +15,33 @@ const diffLine = tv({
 	},
 });
 
-const prefixMap = {
-	added: "+",
-	removed: "-",
-	context: " ",
-} as const;
-
 type DiffLineVariants = VariantProps<typeof diffLine>;
 
-type DiffLineProps = ComponentProps<"div"> & DiffLineVariants;
+type DiffLineProps = Omit<ComponentProps<"div">, "type"> &
+	DiffLineVariants & {
+		prefix: string;
+		content: string;
+	};
 
-const DiffLine = forwardRef<HTMLDivElement, DiffLineProps>(
-	({ className, type = "context", children, ...props }, ref) => {
-		const styles = diffLine({ type });
-		return (
-			<div ref={ref} className={styles.base({ className })} {...props}>
-				<span className={styles.prefix()}>{prefixMap[type ?? "context"]}</span>
-				<span className={styles.code()}>{children}</span>
-			</div>
-		);
-	},
-);
+function DiffLine({
+	type,
+	prefix,
+	content,
+	className,
+	...props
+}: DiffLineProps) {
+	const prefixColor = {
+		added: "text-accent-green",
+		removed: "text-accent-red",
+		context: "text-text-tertiary",
+	}[type || "context"];
 
-DiffLine.displayName = "DiffLine";
+	return (
+		<div className={diffLine({ type, className })} {...props}>
+			<span className={`w-4 ${prefixColor}`}>{prefix}</span>
+			<span className="flex-1">{content}</span>
+		</div>
+	);
+}
 
-export { DiffLine, type DiffLineProps, diffLine };
+export { DiffLine, type DiffLineProps, type DiffLineVariants, diffLine };
