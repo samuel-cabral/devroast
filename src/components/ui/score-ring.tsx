@@ -1,62 +1,67 @@
+"use client";
+
 import type { ComponentProps } from "react";
+import { twMerge } from "tailwind-merge";
 
 type ScoreRingProps = ComponentProps<"div"> & {
 	score: number;
+	total?: number;
 };
 
-const size = 180;
-const strokeWidth = 4;
-const radius = (size - strokeWidth) / 2;
-const circumference = 2 * Math.PI * radius;
+function ScoreRing({ score, total = 10, className, ...props }: ScoreRingProps) {
+	const radius = 80;
+	const circumference = 2 * Math.PI * radius;
+	const progress = Math.min(score / total, 1);
+	const strokeDasharray = `${circumference * progress} ${circumference}`;
 
-function ScoreRing({ score, className, ...props }: ScoreRingProps) {
-	const percentage = score / 10;
-	const strokeDasharray = `${circumference * percentage} ${circumference * (1 - percentage)}`;
-	const strokeDashoffset = circumference * 0.25;
+	const displayScore = score % 1 === 0 ? score.toString() : score.toFixed(1);
 
 	return (
 		<div
-			className={className}
-			style={{ width: size, height: size, position: "relative" }}
+			className={twMerge(
+				"flex flex-col items-center justify-center gap-2",
+				className,
+			)}
 			{...props}
 		>
 			<svg
-				width={size}
-				height={size}
-				viewBox={`0 0 ${size} ${size}`}
-				className="-rotate-90"
+				width="180"
+				height="180"
+				viewBox="0 0 180 180"
+				className="transform -rotate-90"
+				aria-label={`Score: ${displayScore} out of ${total}`}
 			>
-				<title>Score ring</title>
 				<circle
-					cx={size / 2}
-					cy={size / 2}
+					cx="90"
+					cy="90"
 					r={radius}
 					fill="none"
-					strokeWidth={strokeWidth}
-					className="stroke-border-primary"
+					stroke="currentColor"
+					strokeWidth="4"
+					className="text-border-primary"
+				/>
+				<circle
+					cx="90"
+					cy="90"
+					r={radius}
+					fill="none"
+					stroke="url(#gradient)"
+					strokeWidth="4"
+					strokeLinecap="round"
+					strokeDasharray={strokeDasharray}
+					className="transition-all"
 				/>
 				<defs>
-					<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+					<linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
 						<stop offset="0%" stopColor="var(--color-accent-green)" />
 						<stop offset="100%" stopColor="var(--color-accent-amber)" />
 					</linearGradient>
 				</defs>
-				<circle
-					cx={size / 2}
-					cy={size / 2}
-					r={radius}
-					fill="none"
-					stroke="url(#scoreGradient)"
-					strokeWidth={strokeWidth}
-					strokeDasharray={strokeDasharray}
-					strokeDashoffset={strokeDashoffset}
-					strokeLinecap="round"
-				/>
 			</svg>
-			<div className="absolute inset-0 flex flex-col items-center justify-center">
-				<span className="text-5xl font-bold leading-none">{score}</span>
-				<span className="text-base text-text-tertiary">/10</span>
-			</div>
+
+			<span className="font-mono text-2xl font-bold text-text-primary">
+				{displayScore}
+			</span>
 		</div>
 	);
 }

@@ -2,15 +2,15 @@ import type { ComponentProps } from "react";
 import { tv } from "tailwind-variants";
 
 const analysisCardRoot = tv({
-	base: "flex flex-col gap-3 border border-border-primary p-5",
+	base: "flex flex-col gap-3 p-5 border border-border-primary",
 });
 
 const analysisCardTitle = tv({
-	base: "text-[13px] text-text-primary",
+	base: "font-mono text-[13px]",
 });
 
 const analysisCardDescription = tv({
-	base: "text-xs leading-6 text-text-secondary font-sans",
+	base: "text-xs text-text-secondary leading-relaxed",
 });
 
 type AnalysisCardRootProps = ComponentProps<"div">;

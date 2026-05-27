@@ -1,17 +1,17 @@
-import { type ComponentProps, forwardRef } from "react";
+import type { ComponentProps } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const badge = tv({
-	base: "inline-flex items-center gap-sm font-mono text-xs",
+	base: "inline-flex items-center gap-2",
 	variants: {
-		status: {
+		variant: {
 			critical: "text-accent-red",
 			warning: "text-accent-amber",
 			good: "text-accent-green",
 		},
 	},
 	defaultVariants: {
-		status: "good",
+		variant: "critical",
 	},
 });
 
@@ -19,17 +19,24 @@ type BadgeVariants = VariantProps<typeof badge>;
 
 type BadgeProps = ComponentProps<"span"> & BadgeVariants;
 
-const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-	({ className, status, children, ...props }, ref) => {
-		return (
-			<span ref={ref} className={badge({ status, className })} {...props}>
-				<span className="size-2 rounded-full bg-current" />
-				{children}
-			</span>
-		);
-	},
-);
+function Badge({ variant, className, ...props }: BadgeProps) {
+	return (
+		<span className={badge({ variant, className })}>
+			<span
+				className={tv({
+					base: "size-1.5 rounded-full",
+					variants: {
+						variant: {
+							critical: "bg-accent-red",
+							warning: "bg-accent-amber",
+							good: "bg-accent-green",
+						},
+					},
+				})({ variant })}
+			/>
+			<span {...props} />
+		</span>
+	);
+}
 
-Badge.displayName = "Badge";
-
-export { Badge, type BadgeProps, badge };
+export { Badge, type BadgeProps, type BadgeVariants, badge };
