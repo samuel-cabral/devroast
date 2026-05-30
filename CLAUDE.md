@@ -24,7 +24,7 @@
 src/
   app/              # Next.js App Router pages and layouts
   components/       # Feature-level components (navbar, code-editor, etc.)
-    ui/             # Reusable UI primitives (see ui/AGENTS.md for patterns)
+    ui/             # Reusable UI primitives (see ui/CLAUDE.md for patterns)
 ```
 
 ## Key Decisions
